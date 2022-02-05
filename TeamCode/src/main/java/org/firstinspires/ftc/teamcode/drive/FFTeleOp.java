@@ -34,7 +34,7 @@ public class FFTeleOp extends OpMode {
     private int level;
     private boolean liftWasOn;
     private int setPoint;
-    private final int TOP = -1100, UPPER_LEVEL = -724, MIDDLE_LEVEL = -217, LOWER_LEVEL = 248, BOTTOM = 589, STARTING_POS = 0;
+    private final int TOP = -1100, UPPER_LEVEL = -724, MIDDLE_LEVEL = -217, LOWER_LEVEL = 248, BOTTOM = 589, STARTING_POS = -80;
 
 
     /*
@@ -184,7 +184,7 @@ public class FFTeleOp extends OpMode {
         }
 
         switch (level) {
-            case 1: setPoint = BOTTOM; break;
+            case 1: setPoint = BOTTOM; break; //
             case 2: setPoint = LOWER_LEVEL; break;
             case 3: setPoint = STARTING_POS; break;
             case 4: setPoint = MIDDLE_LEVEL; break;
@@ -192,11 +192,11 @@ public class FFTeleOp extends OpMode {
             case 6: setPoint = TOP; break;
         }
 
-        if (liftMotor.getCurrentPosition() > (setPoint + 75)) {
-            liftMotor.setPower(-1.0);
+        if (liftMotor.getCurrentPosition() > (setPoint + 60.0)) {
+            liftMotor.setPower(-1.0); // Moves lift Up
         }
-        else if (liftMotor.getCurrentPosition() < (setPoint - 75)) {
-            liftMotor.setPower(0.75);
+        else if (liftMotor.getCurrentPosition() < (setPoint - 65.0)) {
+            liftMotor.setPower(0.75); // Moves lift down; lower power because it is gravity assisted
         }
         else {
            liftMotor.setPower(0);

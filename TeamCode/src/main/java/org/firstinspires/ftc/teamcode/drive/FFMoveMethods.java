@@ -50,46 +50,6 @@ public abstract class FFMoveMethods extends OpMode {
             }
         }
         public void moveLiftAuto(int level) {
-
-            if (!liftWasOn) {
-                if (gamepad2.dpad_up) {
-                    // level++ runs during the condition
-                    if (level++ > 6) {
-                        level = 6;
-                    }
-                }
-                if (gamepad2.dpad_down) {
-                    // level-- runs during the condition
-                    if (level-- < 1) {
-                        level = 1;
-                    }
-                }
-            } // Put liftWasOn in outer if condition
-
-            if (gamepad2.dpad_down || gamepad2.dpad_up) {
-                liftWasOn = true;
-            } else {
-                liftWasOn = false;
-            }
-
-            switch (level) {
-                case 1: setPoint = BOTTOM; break;
-                case 2: setPoint = LOWER_LEVEL; break;
-                case 3: setPoint = STARTING_POS; break;
-                case 4: setPoint = MIDDLE_LEVEL; break;
-                case 5: setPoint = UPPER_LEVEL; break;
-                case 6: setPoint = TOP; break;
-            }
-
-            if (liftMotor.getCurrentPosition() > (setPoint + 75)) {
-                liftMotor.setPower(-1.0);
-            }
-            else if (liftMotor.getCurrentPosition() < (setPoint - 75)) {
-                liftMotor.setPower(0.75);
-            }
-            else {
-                liftMotor.setPower(0);
-            }
         }
         public void platformMotor(long dist, boolean direction) {
             platformMotor = hardwareMap.get(DcMotor.class, "platformMotor");
