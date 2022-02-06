@@ -24,17 +24,17 @@ public class FFTeleOp extends OpMode {
     private DcMotor carouselMotor = null; //0 port control hub
     private DcMotor platformMotor = null;//port 1, expansion hub
     private DcMotor liftMotor = null;//port 0, expansion hub
-    private CRServo intake;//intake motor
+    private CRServo intake;//intake motor, control hub
     private DigitalChannel touch = null;//port 0, control hub
-    private DigitalChannel redLED;
-    private DigitalChannel greenLED;
+    private DigitalChannel redLED = null;// port 3, control hub
+    private DigitalChannel greenLED = null;// port 2 control hub
+    private DigitalChannel magnetSensor = null;//port 7, control hub
     private Servo cappingServo = null;
     private boolean freightPresent;
-    private FFMoveMethods moveMethods; // Unused - Everett
     private int level;
     private boolean liftWasOn;
     private int setPoint;
-    private final int TOP = -1100, UPPER_LEVEL = -724, MIDDLE_LEVEL = -217, LOWER_LEVEL = 248, BOTTOM = 589, STARTING_POS = -80;
+    private final int TOP = -1100, UPPER_LEVEL = -724, MIDDLE_LEVEL = -217, LOWER_LEVEL = 248, BOTTOM = 589, STARTING_POS = -60;
 
 
     /*
@@ -57,8 +57,8 @@ public class FFTeleOp extends OpMode {
         liftMotor = hardwareMap.get(DcMotor.class, "liftMotor");
         intake = hardwareMap.get(CRServo.class, "intakeServo");
         cappingServo = hardwareMap.get(Servo.class, "cappingServo");
-        //    colorSensor = hardwareMap.get(ColorSensor.class, "colorSensor");
         touch = hardwareMap.get(DigitalChannel.class, "frontTouch");
+        magnetSensor = hardwareMap.get(DigitalChannel.class, "magnetSensor");
         // Most robots need the motor on one side to be reversed to drive forward
         // Reverse the motor that runs backwards when connected directly to the battery
         leftFront.setDirection(DcMotor.Direction.FORWARD);
@@ -113,8 +113,8 @@ public class FFTeleOp extends OpMode {
         double rightBackPower = 0;
         double carouselMotorPower = 0; // Unused - Everett
         double platformPower = 0;
-        double liftPower = 0; // Unused - Everett
-
+        double liftPowerUp = -1.0;
+        double liftPowerDown = 0.75;
         double drive = -gamepad1.left_stick_y;
         double turn = gamepad1.right_stick_x;
         double strafe = gamepad1.left_stick_x;
@@ -161,48 +161,77 @@ public class FFTeleOp extends OpMode {
             telemetry.addData("Platform power", "No command");
         }// Switched to if - else if - else structure - Everett
 
-        //lift controls
-        if (!liftWasOn) {
-            if (gamepad2.dpad_up) {
-                // level++ runs during the condition
-                if (level++ > 6) {
-                    level = 6;
+        //lift controls; for coarse control hold left bumper and use dpad, for fine control just use dpad as normal
+        //NOTE: level remains the same after left bumper is released;
+        //when left bumper is pressed it will return to that level.
+        if (gamepad2.left_bumper) {
+            if (!liftWasOn) {
+                if (gamepad2.dpad_up) {
+                    // level++ runs during the condition
+                    if (level++ > 6) {
+                        level = 6;
+                    }
                 }
-            }
-            if (gamepad2.dpad_down) {
-                // level-- runs during the condition
-                if (level-- < 1) {
-                    level = 1;
+                if (gamepad2.dpad_down) {
+                    // level-- runs during the condition
+                    if (level-- < 1) {
+                        level = 1;
+                    }
                 }
-            }
-        } // Put liftWasOn in outer if condition
+            } // Put liftWasOn in outer if condition
 
-        if (gamepad2.dpad_down || gamepad2.dpad_up) {
-            liftWasOn = true;
+            if (gamepad2.dpad_down || gamepad2.dpad_up) {
+                liftWasOn = true;
+            } else {
+                liftWasOn = false;
+            }
+
+            switch (level) {
+                case 1:
+                    setPoint = BOTTOM;break;
+                case 2:
+                    setPoint = LOWER_LEVEL;break;
+                case 3:
+                    setPoint = STARTING_POS;break;
+                case 4:
+                    setPoint = MIDDLE_LEVEL;break;
+                case 5:
+                    setPoint = UPPER_LEVEL;break;
+                case 6:
+                    setPoint = TOP;break;
+            }
+
+            if (liftMotor.getCurrentPosition() > (setPoint + 60.0)) {
+                liftMotor.setPower(-1.0); // Moves lift Up
+            } else if (liftMotor.getCurrentPosition() < (setPoint - 65.0)) {
+                liftMotor.setPower(0.75); // Moves lift down; lower power because it is gravity assisted
+            } else {
+                liftMotor.setPower(0);
+            }
         } else {
-            liftWasOn = false;
-        }
+            if(gamepad2.dpad_up)
+            {
+                liftMotor.setPower(liftPowerUp);
+                telemetry.addData("Lift power: ", Math.abs(liftPowerUp));
+            } else if(gamepad2.dpad_down)
+            {
 
-        switch (level) {
-            case 1: setPoint = BOTTOM; break; //
-            case 2: setPoint = LOWER_LEVEL; break;
-            case 3: setPoint = STARTING_POS; break;
-            case 4: setPoint = MIDDLE_LEVEL; break;
-            case 5: setPoint = UPPER_LEVEL; break;
-            case 6: setPoint = TOP; break;
+                liftMotor.setPower(liftPowerDown);
+                telemetry.addData("Lift power", -liftPowerDown);
+            } else
+            {
+                liftMotor.setPower(0.0);
+                telemetry.addData("Lift power", "No command");
+            }
         }
-
-        if (liftMotor.getCurrentPosition() > (setPoint + 60.0)) {
-            liftMotor.setPower(-1.0); // Moves lift Up
+        // mag sensor testing
+        if (!magnetSensor.getState()) {
+            telemetry.addData("Magnet Sensor","On");
+            platformMotor.setPower(0);
+        } else {
+            telemetry.addData("Magnet Sensor","Off");
+            platformMotor.setPower(platformPower);
         }
-        else if (liftMotor.getCurrentPosition() < (setPoint - 65.0)) {
-            liftMotor.setPower(0.75); // Moves lift down; lower power because it is gravity assisted
-        }
-        else {
-           liftMotor.setPower(0);
-        }
-
-        // Set To Pos lift controls
 
 
         //intake motor control
