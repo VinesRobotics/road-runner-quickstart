@@ -2,6 +2,7 @@
 
 package org.firstinspires.ftc.teamcode.drive;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
@@ -13,7 +14,7 @@ import com.qualcomm.robotcore.util.Range;
 
 
 @TeleOp(name="FFTeleOp", group="Mecanum Drive") //formerly MecanumWithSpeedToggle
-
+@Config
 public class FFTeleOp extends OpMode {
     // Declare OpMode members.
     private ElapsedTime runtime = new ElapsedTime();
@@ -31,10 +32,25 @@ public class FFTeleOp extends OpMode {
     private DigitalChannel magnetSensor = null;//port 7, control hub
     private Servo cappingServo = null;
     private boolean freightPresent;
-    private int level;
-    private boolean liftWasOn;
-    private int setPoint;
-    private final int TOP = -1100, UPPER_LEVEL = -724, MIDDLE_LEVEL = -217, LOWER_LEVEL = 248, BOTTOM = 589, STARTING_POS = -60;
+    private int level = 3;
+    private boolean liftWasOn = false;
+    private int setPoint = 0;
+    private double power = 0.0;
+    private double servoPower = 0.0;
+    // Configurable variables
+    public static int TOP = -1100, UPPER_LEVEL = -724, MIDDLE_LEVEL = -217, LOWER_LEVEL = 248, BOTTOM = 589, STARTING_POS = -60;
+    public static boolean parkingMode = false;
+    public static double normalPower = 1.0;
+    public static double parkingPower = 0.375;
+    public static double carouselPower = 0.65;
+    public static double servoPosition = 0.34; // Position value of servo
+    public static double normalServoPower = 0.005; // Value servo pos is incremented by
+    public static double parkingServoPower = 0.001;
+    public static double liftPowerUp = -1.0;
+    public static double liftPowerDown = 0.75;
+    public static double platformPower = .75;
+    public static double upperDeadBand = 60;
+    public static double lowerDeadBand = 65;
 
 
     /*
@@ -71,9 +87,6 @@ public class FFTeleOp extends OpMode {
         redLED = hardwareMap.get(DigitalChannel.class, "red");
         greenLED = hardwareMap.get(DigitalChannel.class, "green");
         // change LED mode from input to output
-        level = 3;
-        liftWasOn = false;
-        setPoint = 0;
         redLED.setMode(DigitalChannel.Mode.OUTPUT);
         greenLED.setMode(DigitalChannel.Mode.OUTPUT);
         // Tell the driver that initialization is complete.
@@ -95,11 +108,7 @@ public class FFTeleOp extends OpMode {
         runtime.reset();
     }
 
-    boolean parkingMode = false;
-    double power = 0.0;
-    double carouselPower = 0.0;
-    double servoPosition = 0.34;
-    double servoPower = 0.005;
+
 
     /*
      * Code to run REPEATEDLY after the driver hits PLAY but before they hit STOP
@@ -111,33 +120,28 @@ public class FFTeleOp extends OpMode {
         double rightFrontPower = 0;
         double leftBackPower = 0;
         double rightBackPower = 0;
-        double carouselMotorPower = 0; // Unused - Everett
-        double platformPower = 0;
-        double liftPowerUp = -1.0;
-        double liftPowerDown = 0.75;
         double drive = -gamepad1.left_stick_y;
         double turn = gamepad1.right_stick_x;
         double strafe = gamepad1.left_stick_x;
         double liftCurrPos = liftMotor.getCurrentPosition();
         telemetry.addData("Lift Encoders", liftCurrPos);
 
-        power = 1.0;
         if (gamepad1.left_bumper) {
             parkingMode = true;
         } else if (gamepad1.right_bumper) {
             parkingMode = false;
         } // Switched to else if structure - Everett
         if (parkingMode) {
-            power = 0.375;
-            servoPower = 0.001;
+            power = parkingPower;
+            servoPower = parkingServoPower;
             telemetry.addData("Parking mode", "ON");
         } else {
-            power = 1.0;
-            servoPower = 0.005;
+            power = normalPower;
+            servoPower = normalServoPower;
             telemetry.addData("Parking mode", "OFF");
         } // Switched to if else structure - Everett
 
-        carouselPower = .65;
+
         if (gamepad1.dpad_up) {
             carouselMotor.setPower(carouselPower);
             telemetry.addData("Carousel power: ", carouselPower);
@@ -145,11 +149,10 @@ public class FFTeleOp extends OpMode {
             carouselMotor.setPower(-carouselPower);
             telemetry.addData("Carousel power", -carouselPower);
         } else {
-            carouselMotor.setPower(0.0);
+            carouselMotor.setPower(0.0); // Stops carousel
             telemetry.addData("Carousel power", "No command");
         } // Switched to if - else if - else structure - Everett
         //platform controls
-        platformPower = .75;
         if (gamepad2.dpad_left) {
             platformMotor.setPower(platformPower);
             telemetry.addData("Platform power: ", platformPower);
@@ -201,9 +204,9 @@ public class FFTeleOp extends OpMode {
                     setPoint = TOP;break;
             }
 
-            if (liftMotor.getCurrentPosition() > (setPoint + 60.0)) {
+            if (liftMotor.getCurrentPosition() > (setPoint + upperDeadBand)) {
                 liftMotor.setPower(-1.0); // Moves lift Up
-            } else if (liftMotor.getCurrentPosition() < (setPoint - 65.0)) {
+            } else if (liftMotor.getCurrentPosition() < (setPoint - lowerDeadBand)) {
                 liftMotor.setPower(0.75); // Moves lift down; lower power because it is gravity assisted
             } else {
                 liftMotor.setPower(0);
