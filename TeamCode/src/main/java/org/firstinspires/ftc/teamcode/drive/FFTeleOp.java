@@ -33,7 +33,7 @@ public class FFTeleOp extends OpMode {
     private Servo cappingServo = null;
     private boolean freightPresent;
     private int level = 3;
-    private boolean liftWasOn = false;
+    private boolean liftWasOn = false, platformAutoMove = false, platformWasOn = false;
     private int setPoint = 0;
     private double power = 0.0;
     private double servoPower = 0.0;
@@ -152,17 +152,6 @@ public class FFTeleOp extends OpMode {
             carouselMotor.setPower(0.0); // Stops carousel
             telemetry.addData("Carousel power", "No command");
         } // Switched to if - else if - else structure - Everett
-        //platform controls
-        if (gamepad2.dpad_left) {
-            platformMotor.setPower(platformPower);
-            telemetry.addData("Platform power: ", platformPower);
-        } else if (gamepad2.dpad_right) {
-            platformMotor.setPower(-platformPower);
-            telemetry.addData("Platform power: ", platformPower);
-        } else {
-            platformMotor.setPower(0.0);
-            telemetry.addData("Platform power", "No command");
-        }// Switched to if - else if - else structure - Everett
 
         //lift controls; for coarse control hold left bumper and use dpad, for fine control just use dpad as normal
         //NOTE: level remains the same after left bumper is released;
@@ -200,8 +189,6 @@ public class FFTeleOp extends OpMode {
                     setPoint = MIDDLE_LEVEL;break;
                 case 5:
                     setPoint = UPPER_LEVEL;break;
-                case 6:
-                    setPoint = TOP;break;
             }
 
             if (liftMotor.getCurrentPosition() > (setPoint + upperDeadBand)) {
@@ -227,15 +214,40 @@ public class FFTeleOp extends OpMode {
                 telemetry.addData("Lift power", "No command");
             }
         }
-        // mag sensor testing
-        if (!magnetSensor.getState()) {
-            telemetry.addData("Magnet Sensor","On");
-            platformMotor.setPower(0);
-        } else {
-            telemetry.addData("Magnet Sensor","Off");
-            platformMotor.setPower(platformPower);
-        }
+        //platform controls
+        if (!platformWasOn) {
+            if (gamepad2.right_bumper && !platformAutoMove) {
+                platformAutoMove = true;
+            } else if (gamepad2.right_bumper) {
+                platformAutoMove = false;
+            }
+        } // Put liftWasOn in outer if condition
 
+        if (gamepad2.right_bumper) {
+            platformWasOn = true;
+        } else {
+            platformWasOn = false;
+        }
+        if (platformAutoMove) {
+            if (!magnetSensor.getState()) {
+                telemetry.addData("Magnet Sensor", "On");
+                platformMotor.setPower(0);
+            } else {
+                telemetry.addData("Magnet Sensor", "Off");
+                platformMotor.setPower(platformPower);
+            }
+        } else {
+            if (gamepad2.dpad_left) {
+                platformMotor.setPower(platformPower);
+                telemetry.addData("Platform power: ", platformPower);
+            } else if (gamepad2.dpad_right) {
+                platformMotor.setPower(-platformPower);
+                telemetry.addData("Platform power: ", platformPower);
+            } else {
+                platformMotor.setPower(0.0);
+                telemetry.addData("Platform power", "No command");
+            }// Switched to if - else if - else structure - Everett
+        }
 
         //intake motor control
         if (gamepad2.a && !freightPresent) {
