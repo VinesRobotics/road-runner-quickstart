@@ -19,13 +19,17 @@ import com.acmerobotics.roadrunner.trajectory.constraints.TrajectoryAcceleration
 import com.acmerobotics.roadrunner.trajectory.constraints.TrajectoryVelocityConstraint;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.lynx.LynxModule;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequenceBuilder;
@@ -53,6 +57,17 @@ import static org.firstinspires.ftc.teamcode.drive.DriveConstants.kV;
  */
 @Config
 public class SampleMecanumDrive extends MecanumDrive {
+    // HardwareMap Variables
+    public DcMotor carouselMotor = null; //0 port control hub
+    public DcMotor platformMotor = null;//port 1, expansion hub
+    public DcMotor liftMotor = null;//port 0, expansion hub
+    public CRServo intake;//intake motor, control hub
+    public DigitalChannel touch = null;//port 0, control hub
+    public DigitalChannel redLED = null;// port 3, control hub
+    public DigitalChannel greenLED = null;// port 2 control hub
+    public DigitalChannel magnetSensor = null;//port 7, control hub
+    public Servo cappingServo = null;
+    // Other Variables for PIDF control
     public static PIDCoefficients TRANSLATIONAL_PID = new PIDCoefficients(3.5, 0, 0);
     public static PIDCoefficients HEADING_PID = new PIDCoefficients(6.25, 0, 0);
 
@@ -77,6 +92,13 @@ public class SampleMecanumDrive extends MecanumDrive {
 
     public SampleMecanumDrive(HardwareMap hardwareMap) {
         super(kV, kA, kStatic, TRACK_WIDTH, TRACK_WIDTH, LATERAL_MULTIPLIER);
+        carouselMotor = hardwareMap.get(DcMotor.class, "carouselMotor");
+        platformMotor = hardwareMap.get(DcMotor.class, "platformMotor");
+        liftMotor = hardwareMap.get(DcMotor.class, "liftMotor");
+        intake = hardwareMap.get(CRServo.class, "intakeServo");
+        cappingServo = hardwareMap.get(Servo.class, "cappingServo");
+        touch = hardwareMap.get(DigitalChannel.class, "frontTouch");
+        magnetSensor = hardwareMap.get(DigitalChannel.class, "magnetSensor");
 
         follower = new HolonomicPIDVAFollower(TRANSLATIONAL_PID, TRANSLATIONAL_PID, HEADING_PID,
                 new Pose2d(0.5, 0.5, Math.toRadians(5.0)), 0.5);
