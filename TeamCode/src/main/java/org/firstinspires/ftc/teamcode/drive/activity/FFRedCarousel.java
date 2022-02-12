@@ -37,7 +37,7 @@ public class FFRedCarousel extends LinearOpMode {
         drive.followTrajectory(toCarousel);
         sleep(250);
         drive.carouselMotor.setPower(carouselPowerForward);
-        sleep(2000);
+        sleep(3000);
         drive.carouselMotor.setPower(0.0);
         drive.followTrajectory(toStorage);
         while(!(drive.liftMotor.getCurrentPosition() <= (UPPER_LEVEL-70))){
