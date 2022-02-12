@@ -49,7 +49,7 @@ public class FFBlueWarehouse extends LinearOpMode {
         }
         drive.platformMotor.setPower(0.0);
         drive.intake.setPower(1.0);
-        sleep(2000);
+        sleep(3000);
         drive.intake.setPower(0.0);
         drive.followTrajectory(toWarehouse);
         drive.cappingServo.setPosition(0.72);

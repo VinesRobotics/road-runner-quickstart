@@ -13,8 +13,8 @@ import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
  */
 @Autonomous(name = "FFRedCarousel", group = "FF",preselectTeleOp = "FFTeleOp")
 public class FFRedCarousel extends LinearOpMode {
-    private double carouselPowerForward = 0.65;
-    private double carouselPowerBackwards = -0.65;
+    private double carouselPowerForward = 0.60;
+    private double carouselPowerBackwards = -0.60;
     private double liftMotorPowerUp = -1;
     private double liftMotorPowerDown = 0.75;
     private static int UPPER_LEVEL = -724;
