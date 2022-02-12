@@ -33,7 +33,7 @@ public class FFTeleOp extends OpMode {
     private Servo cappingServo = null;
     private boolean freightPresent;
     private int level = 3;
-    private boolean liftWasOn = false, platformAutoMove = false, platformWasOn = false;
+    private boolean liftWasOn = false, platformAutoMove = true, platformWasOn = false;
     private int setPoint = 0;
     private double power = 0.0;
     private double servoPower = 0.0;
@@ -43,7 +43,7 @@ public class FFTeleOp extends OpMode {
     public static double normalPower = 1.0;
     public static double parkingPower = 0.375;
     public static double carouselPower = 0.65;
-    public static double servoPosition = 0.34; // Position value of servo
+    public static double servoPosition = 0.0; // Position value of servo
     public static double normalServoPower = 0.005; // Value servo pos is incremented by
     public static double parkingServoPower = 0.001;
     public static double liftPowerUp = -1.0;
@@ -51,7 +51,6 @@ public class FFTeleOp extends OpMode {
     public static double platformPower = .75;
     public static double upperDeadBand = 60;
     public static double lowerDeadBand = 65;
-
 
     /*
      * Code to run ONCE when the driver hits INIT
@@ -89,6 +88,8 @@ public class FFTeleOp extends OpMode {
         // change LED mode from input to output
         redLED.setMode(DigitalChannel.Mode.OUTPUT);
         greenLED.setMode(DigitalChannel.Mode.OUTPUT);
+        // Servo Position Definition
+        servoPosition = 0.34;
         // Tell the driver that initialization is complete.
         telemetry.addData("Status", "Initialized");
     }
@@ -156,49 +157,49 @@ public class FFTeleOp extends OpMode {
         //lift controls; for coarse control hold left bumper and use dpad, for fine control just use dpad as normal
         //NOTE: level remains the same after left bumper is released;
         //when left bumper is pressed it will return to that level.
-        if (gamepad2.left_bumper) {
-            if (!liftWasOn) {
-                if (gamepad2.dpad_up) {
-                    // level++ runs during the condition
-                    if (level++ > 6) {
-                        level = 6;
-                    }
-                }
-                if (gamepad2.dpad_down) {
-                    // level-- runs during the condition
-                    if (level-- < 1) {
-                        level = 1;
-                    }
-                }
-            } // Put liftWasOn in outer if condition
-
-            if (gamepad2.dpad_down || gamepad2.dpad_up) {
-                liftWasOn = true;
-            } else {
-                liftWasOn = false;
-            }
-
-            switch (level) {
-                case 1:
-                    setPoint = BOTTOM;break;
-                case 2:
-                    setPoint = LOWER_LEVEL;break;
-                case 3:
-                    setPoint = STARTING_POS;break;
-                case 4:
-                    setPoint = MIDDLE_LEVEL;break;
-                case 5:
-                    setPoint = UPPER_LEVEL;break;
-            }
-
-            if (liftMotor.getCurrentPosition() > (setPoint + upperDeadBand)) {
-                liftMotor.setPower(-1.0); // Moves lift Up
-            } else if (liftMotor.getCurrentPosition() < (setPoint - lowerDeadBand)) {
-                liftMotor.setPower(0.75); // Moves lift down; lower power because it is gravity assisted
-            } else {
-                liftMotor.setPower(0);
-            }
-        } else {
+//        if (gamepad2.left_bumper) {
+//            if (!liftWasOn) {
+//                if (gamepad2.dpad_up) {
+//                    // level++ runs during the condition
+//                    if (level++ > 6) {
+//                        level = 6;
+//                    }
+//                }
+//                if (gamepad2.dpad_down) {
+//                    // level-- runs during the condition
+//                    if (level-- < 1) {
+//                        level = 1;
+//                    }
+//                }
+//            } // Put liftWasOn in outer if condition
+//
+//            if (gamepad2.dpad_down || gamepad2.dpad_up) {
+//                liftWasOn = true;
+//            } else {
+//                liftWasOn = false;
+//            }
+//
+//            switch (level) {
+//                case 1:
+//                    setPoint = BOTTOM;break;
+//                case 2:
+//                    setPoint = LOWER_LEVEL;break;
+//                case 3:
+//                    setPoint = STARTING_POS;break;
+//                case 4:
+//                    setPoint = MIDDLE_LEVEL;break;
+//                case 5:
+//                    setPoint = UPPER_LEVEL;break;
+//            }
+//
+//            if (liftMotor.getCurrentPosition() > (setPoint + upperDeadBand)) {
+//                liftMotor.setPower(-1.0); // Moves lift Up
+//            } else if (liftMotor.getCurrentPosition() < (setPoint - lowerDeadBand)) {
+//                liftMotor.setPower(0.75); // Moves lift down; lower power because it is gravity assisted
+//            } else {
+//                liftMotor.setPower(0);
+//            }
+//        } else {
             if(gamepad2.dpad_up)
             {
                 liftMotor.setPower(liftPowerUp);
@@ -213,7 +214,7 @@ public class FFTeleOp extends OpMode {
                 liftMotor.setPower(0.0);
                 telemetry.addData("Lift power", "No command");
             }
-        }
+//        }
         //platform controls
         if (!platformWasOn) {
             if (gamepad2.right_bumper && !platformAutoMove) {

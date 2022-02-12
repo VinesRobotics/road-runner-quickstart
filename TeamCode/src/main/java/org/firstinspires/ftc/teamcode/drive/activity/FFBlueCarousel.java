@@ -1,10 +1,12 @@
-package org.firstinspires.ftc.teamcode.drive;
+package org.firstinspires.ftc.teamcode.drive.activity;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+
+import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 
 /*
  * FINISHED AUTONOMOUS
@@ -13,6 +15,9 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 public class FFBlueCarousel extends LinearOpMode {
     private double carouselPowerForward = 0.65;
     private double carouselPowerBackwards = -0.65;
+    private double liftMotorPowerUp = -1;
+    private double liftMotorPowerDown = 0.75;
+    private static int UPPER_LEVEL = -724;
     @Override
     public void runOpMode() throws InterruptedException {
         SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
@@ -35,6 +40,10 @@ public class FFBlueCarousel extends LinearOpMode {
         sleep(2000);
         drive.carouselMotor.setPower(0.0);
         drive.followTrajectory(toStorage);
-
+        while(!(drive.liftMotor.getCurrentPosition() <= (UPPER_LEVEL-70))){
+            drive.liftMotor.setPower(liftMotorPowerUp);
+        }
+        drive.liftMotor.setPower(0.0);
+        drive.cappingServo.setPosition(0.34);
     }
 }
