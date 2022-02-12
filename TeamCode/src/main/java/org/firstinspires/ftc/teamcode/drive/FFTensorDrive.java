@@ -63,6 +63,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
  * IMPORTANT: In order to use this OpMode, you need to obtain your own Vuforia license key as
  * is explained below.
  */
+@Disabled
 @Autonomous(name = "TensorDrive", group = "Concept")
 
 public class FFTensorDrive extends LinearOpMode {

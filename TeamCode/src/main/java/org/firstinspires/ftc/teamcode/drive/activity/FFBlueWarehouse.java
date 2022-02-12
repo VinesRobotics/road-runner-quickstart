@@ -12,7 +12,7 @@ import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 /*
  * This is an example of a more complex path to really test the tuning.
  */
-@Autonomous(name = "FFBlueWarehouse", group = "FF")
+@Autonomous(name = "FFBlueWarehouse", group = "FF",preselectTeleOp = "FFTeleOp")
 public class FFBlueWarehouse extends LinearOpMode {
     private double platformPower = 0.75;
     private double liftMotorPowerUp = -1;

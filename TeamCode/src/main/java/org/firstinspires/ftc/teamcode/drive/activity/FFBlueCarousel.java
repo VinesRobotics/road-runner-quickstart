@@ -11,7 +11,7 @@ import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 /*
  * FINISHED AUTONOMOUS
  */
-@Autonomous(name = "FFBlueCarousel", group = "FF")
+@Autonomous(name = "FFBlueCarousel", group = "FF",preselectTeleOp = "FFTeleOp")
 public class FFBlueCarousel extends LinearOpMode {
     private double carouselPowerForward = 0.65;
     private double carouselPowerBackwards = -0.65;
