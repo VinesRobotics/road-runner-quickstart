@@ -31,6 +31,8 @@ import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.hardware.camera.Camera;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequenceBuilder;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequenceRunner;
@@ -67,6 +69,8 @@ public class SampleMecanumDrive extends MecanumDrive {
     public DigitalChannel greenLED = null;// port 2 control hub
     public DigitalChannel magnetSensor = null;//port 7, control hub
     public Servo cappingServo = null;
+    public WebcamName webcam1 = null;
+
     // Other Variables for PIDF control
     public static PIDCoefficients TRANSLATIONAL_PID = new PIDCoefficients(3.5, 0, 0);
     public static PIDCoefficients HEADING_PID = new PIDCoefficients(6.25, 0, 0);
@@ -99,6 +103,7 @@ public class SampleMecanumDrive extends MecanumDrive {
         cappingServo = hardwareMap.get(Servo.class, "cappingServo");
         touch = hardwareMap.get(DigitalChannel.class, "frontTouch");
         magnetSensor = hardwareMap.get(DigitalChannel.class, "magnetSensor");
+        webcam1 = hardwareMap.get(WebcamName.class, "Webcam 1");
 
         follower = new HolonomicPIDVAFollower(TRANSLATIONAL_PID, TRANSLATIONAL_PID, HEADING_PID,
                 new Pose2d(0.5, 0.5, Math.toRadians(5.0)), 0.5);
