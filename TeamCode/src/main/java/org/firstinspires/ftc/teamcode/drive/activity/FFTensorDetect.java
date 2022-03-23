@@ -1,9 +1,13 @@
 package org.firstinspires.ftc.teamcode.drive.activity;
 
+import android.annotation.SuppressLint;
+
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+
+import java.util.Arrays;
 import java.util.List;
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
@@ -22,34 +26,33 @@ import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
  * IMPORTANT: In order to use this OpMode, you need to obtain your own Vuforia license key as
  * is explained below.
  */
-@Disabled
-@Autonomous(name = "Concept: TensorFlow Object Detection Webcam", group = "Concept")
+@Autonomous(name = "FFTensorDetect", group = "FF")
 
 public class FFTensorDetect extends LinearOpMode {
-    private SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
+    public int side = 0;
 
-    private static final String TFOD_MODEL_ASSET = "FreightFrenzy_BCDM.tflite";
-    private static final String[] LABELS = {
+    public static final String TFOD_MODEL_ASSET = "FreightFrenzy_BCDM.tflite";
+    public static final String[] LABELS = {
             "Ball",
             "Cube",
             "Duck",
             "Marker"
     };
 
-    private static final String VUFORIA_KEY =
+    public static final String VUFORIA_KEY =
             "AYyrYgn/////AAABmfoVAabL9068k4+3G7BnkUsn3CiCAh0CExHOl7JMywbgqm+E6EGnvUJu4GmpbxVoJT9fzwRQVJtOg0/0UM8utTn6W+zUBcMxW/pVpPa5yaL3dhcgq8z58hV0f1dbDYJxcBlikT49wSdyoZlG/Cs3HSpplIuK/3xAqBUUYjqFfQ754AYtY2eCz2HWjnAB9IHcHE3MX9TRmEsJMGI6ZMkbMp7N5kxlZDX3yL+36sekpn3NdYfuvDPrQD7DEbGYEYHg8FERjE6vpx1OhU6sLAfUVN3o40Qrct/G3pKndmMJ1MnvAVXPE2llAmXvdQwTNMYRq/BXj446ICd3eCCXj9kozasAra6fJRkn9jFk1FOE4OVS";
 
     /**
      * {@link #vuforia} is the variable we will use to store our instance of the Vuforia
      * localization engine.
      */
-    private VuforiaLocalizer vuforia;
+    public VuforiaLocalizer vuforia;
 
     /**
      * {@link #tfod} is the variable we will use to store our instance of the TensorFlow Object
      * Detection engine.
      */
-    private TFObjectDetector tfod;
+    public TFObjectDetector tfod;
 
     @Override
     public void runOpMode() {
@@ -57,7 +60,8 @@ public class FFTensorDetect extends LinearOpMode {
         // first.
         initVuforia();
         initTfod();
-        detectObjectsStart();
+
+
 
         /*
           Activate TensorFlow Object Detection before we wait for the start command.
@@ -72,10 +76,29 @@ public class FFTensorDetect extends LinearOpMode {
 //                    384);
         }
 
-        /** Wait for the game to begin */
+        /* Wait for the game to begin */
         telemetry.addData(">", "Press Play to start op mode");
         telemetry.update();
-        waitForStart();
+        while (!isStarted()) {
+            double[] rawSideVal = detectObjectsStart();
+//            double[] rawSideVal = new double[] {0.79, 0.5};
+            if (!(rawSideVal == null)) { // MAKE OBJCT DETECT BETTER
+                if (!(Arrays.equals(rawSideVal, new double[]{0.0, 0.0}))) {
+                    if (rawSideVal[0] >= 0.75) {
+                        side = 1;
+                    } else if (rawSideVal[1] >= 0.75) {
+                        side = 2;
+                    }
+                }
+            }
+        }
+        switch (side) {
+            case 0: telemetry.addData("No/Left side: ", side); break;
+            case 1: telemetry.addData("Middle side: ", side); break;
+            case 2: telemetry.addData("Right side: ", side); break;
+        }
+        telemetry.update();
+
 
 
 
@@ -84,7 +107,7 @@ public class FFTensorDetect extends LinearOpMode {
     /**
      * Initialize the Vuforia localization engine.
      */
-    private void initVuforia() {
+    public void initVuforia() {
         /*
          * Configure Vuforia by creating a Parameter object, and passing it to the Vuforia engine.
          */
@@ -102,7 +125,7 @@ public class FFTensorDetect extends LinearOpMode {
     /**
      * Initialize the TensorFlow Object Detection engine.
      */
-    private void initTfod() {
+    public void initTfod() {
         int tfodMonitorViewId = hardwareMap.appContext.getResources().getIdentifier(
                 "tfodMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
@@ -113,32 +136,32 @@ public class FFTensorDetect extends LinearOpMode {
         tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABELS);
     }
 
-    private double[] detectObjectsStart() {
-        while () {
-            if (tfod != null) {
-                // getUpdatedRecognitions() will return null if no new information is available since
-                // the last time that call was made.
-                List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
-                if (updatedRecognitions != null) {
-                    telemetry.addData("# Object Detected", updatedRecognitions.size());
-                    // step through the list of recognitions and display boundary info.
-                    int i = 0;
-                    for (Recognition recognition : updatedRecognitions) {
-                        telemetry.addData(String.format("label (%d)", i), recognition.getLabel());
-                        telemetry.addData(String.format("confidence (%d)", i), "%.03f", recognition.getConfidence());
-                        telemetry.addData(String.format("  left,top (%d)", i), "%.03f , %.03f",
-                                recognition.getLeft(), recognition.getTop());
-                        telemetry.addData(String.format("  right,bottom (%d)", i), "%.03f , %.03f",
-                                recognition.getRight(), recognition.getBottom());
-                        i++;
-                        if () { // if the confidence for a "duck" is higher 
-                            // than confidence c then return the value and break the loop
-                            return new double[]{recognition.getLeft(), recognition.getRight()};
-                        }
+    @SuppressLint("DefaultLocale")
+    public double[] detectObjectsStart() {
+        if (tfod != null) {
+            // getUpdatedRecognitions() will return null if no new information is available since
+            // the last time that call was made.
+            List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
+            if (updatedRecognitions != null) {
+                telemetry.addData("# Object Detected", updatedRecognitions.size());
+                // step through the list of recognitions and display boundary info.
+                int i = 0;
+                for (Recognition recognition : updatedRecognitions) {
+                    telemetry.addData(String.format("label (%d)", i), recognition.getLabel());
+                    telemetry.addData(String.format("confidence (%d)", i), "%.03f", recognition.getConfidence());
+                    telemetry.addData(String.format("  left,top (%d)", i), "%.03f , %.03f",
+                            recognition.getLeft(), recognition.getTop());
+                    telemetry.addData(String.format("  right,bottom (%d)", i), "%.03f , %.03f",
+                            recognition.getRight(), recognition.getBottom());
+                    i++;
+                    if (recognition.getLabel().equalsIgnoreCase("duck")) { // if the confidence for a "duck" is higher
+                        // than confidence c then return the value and break the loop
+                        return new double[]{recognition.getLeft(), recognition.getRight()};
                     }
-                    telemetry.update();
                 }
+                telemetry.update();
             }
         }
+        return new double[]{0.0, 0.0};
     }
 }

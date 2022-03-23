@@ -7,8 +7,11 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import org.firstinspires.ftc.teamcode.drive.activity.FFTensorDetect;
 
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
+
+import java.util.Arrays;
 
 /*
  * FINISHED AUTONOMOUS
@@ -23,11 +26,50 @@ public class FFBlueCarousel extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
         SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
+        FFTensorDetect tensorDetect = new FFTensorDetect();
         drive.setPoseEstimate(new Pose2d(-28.4, 65.0, Math.toRadians(270.0)));
         drive.liftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         drive.liftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-        waitForStart();
+        tensorDetect.initVuforia();
+        tensorDetect.initTfod();
+
+
+
+        /*
+          Activate TensorFlow Object Detection before we wait for the start command.
+          Do it here so that the Camera Stream window will have the TensorFlow annotations visible.
+         */
+        if (tensorDetect.tfod != null) {
+            tensorDetect.tfod.activate();
+            tensorDetect.tfod.setZoom(2.0, 16.0/9.0);
+//            tfod.setClippingMargins(216,
+//                    384,
+//                    216,
+//                    384);
+        }
+
+        /* Wait for the game to begin */
+        telemetry.addData(">", "Press Play to start op mode");
+        telemetry.update();
+        while (!isStarted()) {
+            double[] rawSideVal = tensorDetect.detectObjectsStart();
+            if (!(rawSideVal == null)) {
+                if (!(Arrays.equals(rawSideVal, new double[]{0.0, 0.0}))) {
+                    if (rawSideVal[0] >= 0.75) {
+                        tensorDetect.side = 1;
+                    } else if (rawSideVal[1] >= 0.75) {
+                        tensorDetect.side = 2;
+                    }
+                }
+            }
+        }
+        switch (tensorDetect.side) {
+            case 0: telemetry.addData("No side: ", tensorDetect.side); break;
+            case 1: telemetry.addData("Left side: ", tensorDetect.side); break;
+            case 2: telemetry.addData("Right side: ", tensorDetect.side); break;
+        }
+        telemetry.update();
 
         if (isStopRequested()) return;
 
