@@ -22,10 +22,10 @@ public class Auton_RedField_ShootPark extends LinearOpMode {
     Trajectory trajShoot, trajParkA, trajParkB;
     //milliseconds of time to offset instructions
     // 1 second = 1000 milliseconds
-    long waitOffset = 1000;
-    int targetVel = 2470;
+    long waitOffset = 10000;
+    int targetVel = 2500;
 
-    Vector2d shootPosition = new Vector2d(-63, -13);
+    Vector2d shootPosition = new Vector2d(-63, -17);
     Vector2d parkPosition = new Vector2d(12, -12);
     @Override
     public void runOpMode() throws InterruptedException {

@@ -114,7 +114,7 @@ public class SampleMecanumDrive extends MecanumDrive {
     public static double armPower = .8;
 
     public DcMotorEx shooterMotor;
-    public static double targetVel = 2500;
+    public static double targetVel = 2600;
     public static double powerVel = 2280;
 //    targetVel = 1240;
 //    During the Aledo qualifier, this caused the rings to skim the bottom of the goal most shots.
@@ -251,7 +251,7 @@ public class SampleMecanumDrive extends MecanumDrive {
 
         wobbleArmServo = hardwareMap.get(Servo.class, "wobbleArmGrip");
         wobbleArmServo.setDirection(Servo.Direction.FORWARD);
-        wobbleArmServo.setPosition(MAX_POS);
+//        wobbleArmServo.setPosition(MAX_POS);
 
         //Intake Mechanisms
         intakeMotor = hardwareMap.get(DcMotor.class, "intakeMotor");

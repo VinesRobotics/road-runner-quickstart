@@ -23,7 +23,7 @@ public class Auton_RedWall_ShootPark extends LinearOpMode {
     Trajectory traj1, traj2, trajShoot, trajParkA, trajParkB;
     //milliseconds of time to offset instructions
     // 1 second = 1000 milliseconds
-    long waitOffset = 1000;
+    long waitOffset = 10000;
     int targetVel = 2500;
 
     Vector2d shootPosition = new Vector2d(-63, -13);

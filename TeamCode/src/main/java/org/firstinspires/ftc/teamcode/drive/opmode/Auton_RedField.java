@@ -156,12 +156,12 @@ switch (ringsDetected) {
                 .build();
 
         trajB2 = drive.trajectoryBuilder(trajB1.end())
-                .strafeTo(new Vector2d(-31, -56))
+                .strafeTo(new Vector2d(-27, -56))
                 .build();
 
         trajB3 = drive.trajectoryBuilder(trajB2.end())
                 .lineTo(
-                        new Vector2d(-33,-56),
+                        new Vector2d(-29,-56),
                         SampleMecanumDrive.getVelocityConstraint(slowerVelocity, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
                 )
@@ -216,7 +216,7 @@ switch (ringsDetected) {
         //Use Tensorflo to figure out which path to use
         //Test all the paths.
         telemetry.clear();
-
+        drive.wobbleArmServo.setPosition(drive.MAX_POS);
         switch(ringsDetected) {
             case "Quad": pathC(); break;
             case "Single": pathB(); break;

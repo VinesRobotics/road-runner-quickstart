@@ -36,7 +36,7 @@ public class Auton_BlueWall extends LinearOpMode {
 
     Trajectory trajB1, trajB2, trajB3, trajB4, trajB5;
 
-    Trajectory trajC1, trajC2, trajC3, trajC4, trajC5, trajC6;
+    Trajectory trajC1, trajC2, trajC3, trajC4, trajC5, trajC6, trajC7;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -121,7 +121,7 @@ switch (ringsDetected) {
                 .build();
 
         trajC2 = drive.trajectoryBuilder(trajC1.end(), true)
-                .splineToConstantHeading(new Vector2d(-18, 21), Math.toRadians(180))
+                .splineToConstantHeading(new Vector2d(-18, 14), Math.toRadians(180))
 //                .strafeTo(new Vector2d(12, 19))
 //                .lineTo(new Vector2d(-20, 19))
                 .build();
@@ -131,14 +131,14 @@ switch (ringsDetected) {
 //                .build();
 
         trajC3 = drive.trajectoryBuilder(trajC2.end())
-                .lineTo(new Vector2d(-28, 19),
+                .lineTo(new Vector2d(-28, 14),
                         SampleMecanumDrive.getVelocityConstraint(10, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
                 )
                 .build();
 
         trajC4 = drive.trajectoryBuilder(trajC3.end())
-                .strafeTo(new Vector2d(56, 19))
+                .strafeTo(new Vector2d(56, 14))
                 .build();
 
         trajC5 = drive.trajectoryBuilder(trajC4.end())
@@ -149,6 +149,9 @@ switch (ringsDetected) {
                 .strafeTo(new Vector2d(56, 30))
                 .build();
 
+        trajC7 = drive.trajectoryBuilder(trajC6.end())
+                .strafeTo(new Vector2d(56, 12))
+                .build();
         break;
 
     //Case B:
@@ -160,12 +163,12 @@ switch (ringsDetected) {
                 .build();
 
         trajB2 = drive.trajectoryBuilder(trajB1.end())
-                .strafeTo(new Vector2d(-31, 18))
+                .strafeTo(new Vector2d(-27, 18))
                 .build();
 
         trajB3 = drive.trajectoryBuilder(trajB2.end())
                 .lineTo(
-                        new Vector2d(-33, 18),
+                        new Vector2d(-29, 18),
                         SampleMecanumDrive.getVelocityConstraint(slowerVelocity, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
                 )
@@ -224,7 +227,7 @@ switch (ringsDetected) {
         //Use Tensorflo to figure out which path to use
         //Test all the paths.
         telemetry.clear();
-
+        drive.wobbleArmServo.setPosition(drive.MAX_POS);
         switch(ringsDetected) {
             case "Quad": pathC(); break;
             case "Single": pathB(); break;
@@ -307,7 +310,7 @@ switch (ringsDetected) {
         drive.wobbleRelease();
         sleep(1000);
         drive.followTrajectory(trajC6);
-//        drive.followTrajectory(trajC7);
+        drive.followTrajectory(trajC7);
     }
 
     private void pathShoot() {

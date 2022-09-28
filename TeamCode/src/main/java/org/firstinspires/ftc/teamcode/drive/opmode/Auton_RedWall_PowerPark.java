@@ -22,7 +22,7 @@ public class Auton_RedWall_PowerPark extends LinearOpMode {
     Trajectory wallOffset, trajPower1, trajPower2, trajPower3, trajParkA, trajParkB;
     //milliseconds of time to offset instructions
     // 1 second = 1000 milliseconds
-    long waitOffset = 1000;
+    long waitOffset = 10000;
     //Shooter Velocity (Test for optimal PowerShot Velocity)
     int powerVel = (int)drive.powerVel;
 
