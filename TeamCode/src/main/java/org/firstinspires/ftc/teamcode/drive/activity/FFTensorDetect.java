@@ -82,7 +82,7 @@ public class FFTensorDetect extends LinearOpMode {
         while (!isStarted()) {
             double[] rawSideVal = detectObjectsStart();
 //            double[] rawSideVal = new double[] {0.79, 0.5};
-            if (!(rawSideVal == null)) { // MAKE OBJCT DETECT BETTER
+            if (!(rawSideVal == null)) {
                 if (!(Arrays.equals(rawSideVal, new double[]{0.0, 0.0}))) {
                     if (rawSideVal[0] >= 0.75) {
                         side = 1;
