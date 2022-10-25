@@ -3,13 +3,9 @@ package org.firstinspires.ftc.teamcode.drive.opmode.drive;
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.DigitalChannel;
-import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
-import com.qualcomm.robotcore.util.Range;
 
 
 @TeleOp(name="PowerPlayTeleOp", group="Mecanum Drive") //formerly MecanumWithSpeedToggle
@@ -22,7 +18,7 @@ public class PowerPlayTeleOp extends OpMode {
     private DcMotor backRight = null; //2 port, control hub
     private DcMotor backLeft = null; //3 port, control hub
     private double theta;
-    private double stick_y, stick_x, Px, Py;
+    private double stick_y, stick_x, Px, Py, right_stick_x;
 
     /*
      * Code to run ONCE when the driver hits INIT
@@ -70,15 +66,19 @@ public class PowerPlayTeleOp extends OpMode {
      */
     @Override
     public void loop() {
-        stick_x = gamepad1.left_stick_x * 0.5;
-        stick_y = gamepad1.left_stick_y * 0.5;
+        stick_x = gamepad1.left_stick_x * 0.5; // left to right movement modifier
+        stick_y = gamepad1.left_stick_y * 0.5; // front to back movement modifier
+        right_stick_x = gamepad1.right_stick_x * 0.5; // rotation movement modifier
+
         theta = (Math.atan2(stick_y, stick_x)) - (Math.PI / 2);
         Px = Math.sqrt(Math.pow(stick_x, 2) + Math.pow(stick_y, 2)) * (Math.sin(theta + Math.PI / 4));
         Py = Math.sqrt(Math.pow(stick_x, 2) + Math.pow(stick_y, 2)) * (Math.sin(theta - Math.PI / 4));
-        frontRight.setPower(Px);
-        frontLeft.setPower(Py);
-        backRight.setPower(Py);
-        backRight.setPower(Px);
+
+
+        frontRight.setPower(Px - right_stick_x);
+        frontLeft.setPower(Py + right_stick_x);
+        backRight.setPower(Py - right_stick_x);
+        backLeft.setPower(Px + right_stick_x);
 
     }
 
