@@ -7,16 +7,18 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
+
 
 @TeleOp(name="PowerPlayTeleOp", group="Mecanum Drive") //formerly MecanumWithSpeedToggle
 @Config
 public class PowerPlayTeleOp extends OpMode {
     // Declare OpMode members.
     private ElapsedTime runtime = new ElapsedTime();
-    private DcMotor frontRight = null; //0 port, control hub
-    private DcMotor frontLeft = null; //1 port, control hub
-    private DcMotor backRight = null; //2 port, control hub
-    private DcMotor backLeft = null; //3 port, control hub
+    private DcMotor rightFront = null; //0 port, control hub
+    private DcMotor leftFront = null; //1 port, control hub
+    private DcMotor rightRear = null; //2 port, control hub
+    private DcMotor leftRear = null; //3 port, control hub
     private double theta;
     private double stick_y, stick_x, Px, Py, right_stick_x;
 
@@ -31,15 +33,17 @@ public class PowerPlayTeleOp extends OpMode {
         // Initialize the hardware variables. Note that the strings used here as parameters
         // to 'get' must correspond to the names assigned during the robot configuration
         // step (using the FTC Robot Controller app on the phone).
-        frontRight = hardwareMap.get(DcMotor.class, "frontRight");
-        frontLeft = hardwareMap.get(DcMotor.class, "frontLeft");
-        backRight = hardwareMap.get(DcMotor.class, "backRight");
-        backLeft = hardwareMap.get(DcMotor.class, "backLeft");
+        rightFront = hardwareMap.get(DcMotor.class, "rightFront");
+        leftFront = hardwareMap.get(DcMotor.class, "leftFront");
+        rightRear = hardwareMap.get(DcMotor.class, "rightRear");
+        leftRear = hardwareMap.get(DcMotor.class, "leftRear");
         // Reverse the motor that runs backwards when connected directly to the battery
-        frontRight.setDirection(DcMotorSimple.Direction.REVERSE);
-        frontLeft.setDirection(DcMotorSimple.Direction.FORWARD);
-        backRight.setDirection(DcMotorSimple.Direction.REVERSE);
-        backLeft.setDirection(DcMotorSimple.Direction.FORWARD);
+        rightFront.setDirection(DcMotorSimple.Direction.REVERSE);
+        leftFront.setDirection(DcMotorSimple.Direction.FORWARD);
+        rightRear.setDirection(DcMotorSimple.Direction.REVERSE);
+        leftRear.setDirection(DcMotorSimple.Direction.FORWARD);
+        SampleMecanumDrive robot = new SampleMecanumDrive(hardwareMap);
+
         // Tell the driver that initialization is complete.
         telemetry.addData("Status", "Initialized");
     }
@@ -74,11 +78,10 @@ public class PowerPlayTeleOp extends OpMode {
         Px = Math.sqrt(Math.pow(stick_x, 2) + Math.pow(stick_y, 2)) * (Math.sin(theta + Math.PI / 4));
         Py = Math.sqrt(Math.pow(stick_x, 2) + Math.pow(stick_y, 2)) * (Math.sin(theta - Math.PI / 4));
 
-
-        frontRight.setPower(Px - right_stick_x);
-        frontLeft.setPower(Py + right_stick_x);
-        backRight.setPower(Py - right_stick_x);
-        backLeft.setPower(Px + right_stick_x);
+        rightFront.setPower(Px - right_stick_x);
+        leftFront.setPower(Py + right_stick_x);
+        rightRear.setPower(Py - right_stick_x);
+        leftRear.setPower(Px + right_stick_x);
 
     }
 
